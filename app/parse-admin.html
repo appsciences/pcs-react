@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <script src="http://fb.me/react-0.12.2.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.12.2.js"></script>
+    <script src="../node_modules/parse/build/parse-latest.js"></script>
+</head>
+<body>
+<div id="form">
+    You are a a dick.
+</div>
+
+
+<script type="text/javascript">
+
+    Parse.initialize("Q6BM5eDIKlM5RuKxyOiM7JZ63IWHbaEE83IVS9h4", "Cepi5OZttj1F25Onwl9qiFa88ItXwI237KzzR7Sx");
+
+    createCareGiver();
+
+    function createAppt()
+    {
+        var Appt = Parse.Object.extend("Appointment");
+
+        var appt = new Appt();
+
+        var apptData =
+        {
+            dateTime: new Date(),
+            recurFrequency: "weekly",
+            recurStart: new Date(),
+            recurEnd: new Date()
+        };
+
+        appt.save(apptData).then(
+                function () {
+                    alert("Saved");
+                    console.log("Saved");
+//                    console.dir(obj);
+                },
+
+                function (err){
+                    alert ("error:" + err);
+                }
+        );
+
+
+    }
+
+    function createClient()
+    {
+        var Appt = Parse.Object.extend("Appointment");
+
+        var appt = new Appt();
+
+        appt.set("dateTime", new Date());
+
+        appt.set("recurFrequency", "none");
+
+
+        var clientData =
+        {
+            firstName: "Buck",
+            lastName: "Naked",
+            appointments: [appt],
+            needs: [{allergies:["Peanuts"], diet:'Vegan', functionalLimitations:["Low Vision"]}],
+            equipment: ["walker"]
+        };
+
+        var client  = new (Parse.Object.extend("Client"))();
+
+        client.save(clientData).then(
+                function () {
+                    alert("Saved Client");
+                    console.log("Saved Client");
+                    //console.dir(obj);
+                },
+
+                function (err){
+                    alert ("error:" + err);
+                }
+        );
+
+    }
+
+    function createCareGiver()
+    {
+        var Service = Parse.Object.extend("Service");
+
+        var service = new Service();
+
+        service.set("name", "Cooking");
+
+
+        var careGiverData =
+        {
+            firstName: "Care",
+            lastName: "Giver",
+            skills: [service]
+        };
+
+        var careGiver  = new (Parse.Object.extend("CareGiver"))();
+
+        careGiver.save(careGiverData).then(
+                function () {
+                    alert("Saved Care Giver");
+                    console.log("Saved Care Giver");
+                    //console.dir(obj);
+                },
+
+                function (err){
+                    alert ("error:" + err);
+                }
+        );
+
+    }
+</script>
+</body>
+</html>

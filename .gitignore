@@ -1,0 +1,13 @@
+logs/*
+!.gitkeep
+node_modules/
+bower_components/
+components/
+tmp
+.DS_Store
+.idea
+target/
+.project
+.classpath
+.settings/
+.project
