@@ -1,5 +1,4 @@
 var React = require('react');
-var Griddle = require('griddle-react');
 var ReactBootstrap = require('react-bootstrap')
     , Well = ReactBootstrap.Well
     , Nav = ReactBootstrap.Nav
@@ -8,8 +7,12 @@ var ReactBootstrap = require('react-bootstrap')
     , ButtonToolbar = ReactBootstrap.ButtonToolbar
     , Button = ReactBootstrap.Button
     , Panel = ReactBootstrap.Panel
+    , Glyphicon = ReactBootstrap.Glyphicon
     , ModalTrigger = ReactBootstrap.ModalTrigger;
 
+var Table = require('reactable').Table
+    , Tr = require('reactable').Tr
+    , Td = require('reactable').Td;
 
 var Doctor = require("./doctor");
 
@@ -19,42 +22,47 @@ var DoctorModal = require("./doctor-edit.js");
 
 var Spinner = require("react-spinner");
 
-var fakeData =  [
-    {
-        "id": 0,
-        "name": "Mayer Leonard",
-        "city": "Kapowsin",
-        "state": "Hawaii",
-        "country": "United Kingdom",
-        "company": "Ovolo",
-        "favoriteNumber": 7
-    }
-];
-
-var getDoctorData = function(doctorData){
-
-    return doctorData.map(function (doc) {
-        return {
-            Name: doc.getFullName(' '),
-            Location: doc.getLocationsList().join('<br>')
-        };
-    });
-}
-
 
 var DoctorList = React.createClass({
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             doctors: [],
-            showModal: true,
+            showModal: false,
             doctor: new Doctor()
         };
     },
 
-    showReferringModal: function(){
+    showReferringModal: function () {
         var doc = new Doctor();
         doc.setReferring();
         this.setState({showModal: true, doctor: doc})
+    },
+
+
+    getDoctorData: function (doctorData) {
+
+        return doctorData.map(function (doc) {
+            var locationlist = doc.getLocationsList().map(function (loc) {
+                return (<li>{loc}</li>);
+            });
+
+            return {
+                name: doc.getFullName(' '),
+                locations: (<ul>{locationlist}</ul>),
+                editButton: (
+                    <Button bsStyle="warning" value={doc.id} onClick={this.editDoctor}>
+                        <Glyphicon glyph="edit" />
+                    </Button>
+                )
+            };
+        });
+    },
+
+    editDoctor: function (event){
+        this.setState({
+            showModal: true,
+            doctor: this.state.doctors.get(event.target.value)
+        });
     },
 
     showSpecialistModal: function(){
@@ -67,18 +75,14 @@ var DoctorList = React.createClass({
         this.setState({showModal: false})
     },
 
-    saveDoctor: function(form){
-
-    },
-
     componentDidMount: function() {
         var doctors = new Doctors();
         doctors.fetch().then(function(doctors){
 
             if (this.isMounted()) {
                 this.setState({
-                    doctors: getDoctorData(doctors)
-                })
+                    doctors: doctors
+                });
             }
         }.bind(this), function(err) {
             //TODO: Error Handling}
@@ -103,18 +107,19 @@ var DoctorList = React.createClass({
                         <Button bsStyle="primary" onClick={this.showSpecialistModal}>Add Specialist</Button>
                     </ButtonToolbar>
                 </Panel>
-                <Griddle
-                    results={this.state.doctors}
-                    tableClassName="table table-condensed table-striped table-hover"
-                    showFilter={true}
-                    showSettings={true}
-                    columns={["Name", "Locations"]}
-                />
+                <Table className="table table-striped table-condensed" columns={[
+                    { key: "editButton", label: ""},
+                    { key: "name", label: "Name"},
+                    { key: "locations", label: "Locations"}
+                ]}
+
+                    data={this.getDoctorData(this.state.doctors)}>
+                </Table>
                 {modal}
             </Well>
         );
     }
 });
 
-
 module.exports = DoctorList;
+

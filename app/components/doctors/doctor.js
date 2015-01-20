@@ -23,7 +23,7 @@ var Doctor = Parse.Object.extend("Doctor", {
 
     //TODO: pass in string mask
     getLocationsList: function(){
-        if(!this.get("lcations"))
+        if(!this.get("locations"))
             return [];
         return this.get("locations").map(function(loc){
             return loc.get('address') + ' ' + loc.get('city') + ' Ph:' + loc.get('phone');

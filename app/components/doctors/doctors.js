@@ -4,10 +4,9 @@ var Doctor = require("./doctor");
 
 var query = new Parse.Query(Doctor);
 
-query.include('specialties');
-query.include('insCarriers');
-query.include('salesPeople');
 query.include('locations');
+query.include('specialties');
+query.include('salesPeople');
 
 var Doctors = Parse.Collection.extend({
     model: Doctor,
