@@ -16,63 +16,30 @@ var Table = require('reactable').Table
     , Tr = require('reactable').Tr
     , Td = require('reactable').Td;
 
-var Patient = require("./patient");
+var Specialty = require("./specialty");
 
-var Patients = require("./patients");
+var Specialties = require("./specialties");
 
-var PatientModal = require("./patient-edit.js");
+var SpecialtyModal = require("./specialty-edit.js");
 
 var Spinner = require("react-spinner");
 
 
-var PatientList = React.createClass({
+var SpecialtyList = React.createClass({
     getInitialState: function () {
         return {
-            patients: new Patients(),
+            specialties: new Specialties(),
             showModal: false,
-            patient: new Patient()
+            specialty: new Specialty()
         };
     },
 
-    showNewModal: function () {
-        this.setState({showModal: true, patient: new Patient()})
-    },
-
-
-    getPatientData: function (patientData) {
-
-        return patientData.map(function (pat) {
-
-            return {
-                name: pat.getFullName(' '),
-                address: pat.getFullAddress(),
-                editButton: (
-                    <Button bsStyle="warning" value={pat.id} onClick={this.editPatient}>
-                        <Glyphicon glyph="edit" />
-                    </Button>
-                )
-            };
-        }.bind(this));
-    },
-
-    editPatient: function (event){
-        this.setState({
-            showModal: true,
-            patient: this.state.patients.get(event.target.value || event.target.parentElement.value)
-        });
-    },
-
-    hideModal: function(){
-        this.getData();
-        this.setState({showModal: false})
-    },
-
-    getData: function(){
-        this.state.patients.fetch().then(function(patients){
+    loadData(){
+        this.state.specialties.fetch().then(function(carriers){
 
             if (this.isMounted()) {
                 this.setState({
-                    patients: patients
+                    specialties: carriers
                 });
             }
         }.bind(this), function(err) {
@@ -82,39 +49,71 @@ var PatientList = React.createClass({
     },
 
     componentDidMount: function() {
-        this.getData();
+        this.loadData();
+    },
+
+    showNewModal: function () {
+        this.setState({showModal: true, specialty: new Specialty()})
+    },
+
+
+    getSpecialtyData: function (specialtyData) {
+
+        return specialtyData.map(function (spec) {
+
+            return {
+                name: spec.get('name'),
+                editButton: (
+                    <Button bsStyle="warning" value={spec.id} onClick={this.editSpecialty}>
+                        <Glyphicon glyph="edit" />
+                    </Button>
+                )
+            };
+        }.bind(this));
+    },
+
+    editSpecialty: function (event){
+        this.setState({
+            showModal: true,
+            specialty: this.state.specialties.get(event.target.value || event.target.parentElement.value)
+        });
+    },
+
+    //TODO: Need to detect when it's a cancel and not reload
+    hideModal: function(){
+        this.setState({showModal: false});
+        this.loadData();
     },
 
     render: function () {
 
         var modal = this.state.showModal &&
-            (<PatientModal
+            (<SpecialtyModal
                 onRequestHide={this.hideModal}
-                patient={this.state.patient}
+                specialty={this.state.specialty}
             />);
 
         return (
             <Well>
                 <Panel>
                     <ButtonToolbar>
-                        Patients
-                        <Button bsStyle="primary" onClick={this.showNewModal}>Add Patient</Button>
+                        Specialties
+                        <Button bsStyle="primary" onClick={this.showNewModal}>Add Specialty</Button>
                     </ButtonToolbar>
                 </Panel>
                 <Table className="table table-striped table-condensed"
                     columns={[
                         { key: "editButton", label: ""},
                         { key: "name", label: "Name"},
-                        { key: "address", label: "Address"}
                     ]}
+                    data={this.getSpecialtyData(this.state.specialties)}
                     sortable={true}
                     itemsPerPage={20}
-                    data={this.getPatientData(this.state.patients)}/>
+                />
                 {modal}
             </Well>
         );
     }
 });
 
-module.exports = PatientList;
-
+module.exports = SpecialtyList;

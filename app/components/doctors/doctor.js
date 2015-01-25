@@ -26,7 +26,7 @@ var Doctor = Parse.Object.extend("Doctor", {
         if(!this.get("locations"))
             return [];
         return this.get("locations").map(function(loc){
-            return loc.get('address') + ' ' + loc.get('city') + ' Ph:' + loc.get('phone');
+            return loc.get('address') + ' ' + loc.get('city') + ' Ph: ' + loc.get('phone');
         });
     }
 

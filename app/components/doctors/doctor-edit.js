@@ -1,14 +1,15 @@
 var React = require('react/addons')
     , formUtils = require('../shared/form-utils')
-    , parseUtils = require('../shared/parse-utils')
     , Doctor = require('./doctor')
     , Location = require('./location')
-    , InsCarriers = require('../shared/ins-carriers')
-    , Specialties = require('../shared/specialties')
-    , SalesPeople = require('../sales-person/sales-people');
+    , InsCarriers = require('../insCarriers/ins-carriers')
+    , Specialties = require('../specialties/specialties')
+    , SalesPeople = require('../sales-person/sales-people')
+    , OfficeHours = require('./office-hours');
 
 var ReactBootstrap = require('react-bootstrap')
     , Input = ReactBootstrap.Input
+    , Panel = ReactBootstrap.Panel
     , Modal = ReactBootstrap.Modal
     , Grid = ReactBootstrap.Grid
     , Row = ReactBootstrap.Row
@@ -30,43 +31,75 @@ var Table = require('reactable').Table
     , Tr = require('reactable').Tr
     , Td = require('reactable').Td;
 
+var OfficeHours = require('./office-hours-edit')
+
 var toDelimitedIdString = function (parseObjCol) {
-    return parseObjCol.map(function (parseObj) {
+    return parseObjCol && parseObjCol.map(function (parseObj) {
         return parseObj.id;
     }).join(',');
 };
 
-var toLabelValArray = function (parseObjCol) {
-    return parseObjCol.map(function (parseObj) {
-        return {label: parseObj.get("name"), value: parseObj.id};
-    });
-};
+var getWeekDayName= function(weekDayNumber, weekDayLength){
 
-var toTableVals = function (parseObjCol) {
-    return parseObjCol.map(function (parseObj) {
-        var obj = parseObj.toJSON();
-        obj.deleteButton = (
-            <Button bsStyle="danger" value={this.state.locations.length} onClick={this.removeLocation}>
-                <Glyphicon glyph="remove" />
-            </Button>);
+    var d = (new Date('January 25, 2014 09:00:00'));
 
-        return obj;
-    });
+    d.setDate(d.getDate() + weekDayNumber);
+
+    return d.toLocaleDateString('en-US', {weekday: weekDayLength});
 };
 
 var DoctorModal = React.createClass({
     getInitialState: function() {
+
+        var locations;
+        if(this.props.doctor.isNew()){
+           locations = [];
+        } else {
+            locations = this.props.doctor.get("locations") || [];
+
+        }
+
         return {
             doctor: this.props.doctor,
-            locations: !this.props.doctor.isNew() && toTableVals(this.props.doctor.get("locations")),
+            locations: this.toTableVals(locations),
             insCarriers: [],
             specialties: [],
             salesPeople: [],
+            officeHours: [],
+            officeHoursWeekDay: '1',
             location: {}
         };
     },
 
+
+
+    toTableVals: function (parseObjCol) {
+        return parseObjCol && parseObjCol.map(function (parseObj, index) {
+                var obj = parseObj.toJSON();
+                obj.deleteButton = (
+                    <Button bsStyle="danger" value={index} onClick={this.removeLocation}>
+                        <Glyphicon glyph="remove" />
+                    </Button>);
+
+                return obj;
+            }.bind(this));
+    },
+
+//Modal scrolling fix
+    componentWillUnmount() {
+        if (document && document.body) {
+            document.body.className = document.body.className.replace(/ ?modal-open/, '');
+        }
+    },
+
     componentDidMount: function() {
+        //Modal scrolling fix
+
+        if (document && document.body) {
+            var orig = document.body.className;
+            document.body.className = orig + (orig ? ' ' : '') + 'modal-open';
+        }
+
         var insCarriers = new InsCarriers();
         var specialties = new Specialties();
         var salesPeople = new SalesPeople();
@@ -117,14 +150,55 @@ var DoctorModal = React.createClass({
                 <Glyphicon glyph="remove" />
             </Button>);
 
+        if(this.state.doctor.isSpecialist){
+
+            //copy office hours
+            row.officeHours = this.state.officeHours.slice(0);
+
+            var officeHoursList = row.officeHours.map(function(oh){
+               return <li>{getWeekDayName(oh.weekDay, 'short')} {oh.startTime} - {oh.endTime}</li>
+            });
+
+            row.officeHoursList  = <ul>{officeHoursList}</ul>;
+        }
+
         this.setState(
             {locations: this.state.locations.concat(row)}
         );
     },
 
+    //TODO: Doesn't work
     removeLocation: function(event){
         this.setState(
-            {locations: this.state.locations.slice(event.target.value, event.target.value + 1)}
+            //JS splice does not return the array, using addons
+            {
+                locations: formUtils.removeItemAtIndex(this.state.locations, event.target.value)
+            }
+        );
+    },
+
+     addOfficeHours: function(event) {
+        event.preventDefault();
+        
+        var row = formUtils.toNameValCollection(event.target);
+
+        row.deleteButton = (
+            <Button bsStyle="danger" value={this.state.officeHours.length -1} onClick={this.removeOfficeHours}>
+                <Glyphicon glyph="remove" />
+            </Button>);
+        
+        row.weekDayName = getWeekDayName(row.weekDay, 'short');
+
+        this.setState({
+            officeHours: this.state.officeHours.concat(row),
+            officeHoursWeekDay: parseInt(this.state.officeHoursWeekDay) == 6 ? '0' : (parseInt(this.state.officeHoursWeekDay) + 1).toString()
+
+        });
+    },
+
+    removeOfficeHours: function(event){
+        this.setState(
+            {officeHours: formUtils.removeItemAtIndex(this.state.officeHours, event.target.value)}
         );
     },
 
@@ -133,11 +207,12 @@ var DoctorModal = React.createClass({
 
         var doc = this.props.doctor;
 
-        doc.set(formUtils.toNameValCollection(event.target));
 
         var insCarrs = this.state.insCarriers;
         var specs = this.state.specialties;
         var sales = this.state.salesPeople;
+
+        doc.unset("locations");
 
         this.state.locations.forEach(function(location){
             var parseLoc = new Location;
@@ -152,19 +227,33 @@ var DoctorModal = React.createClass({
             delete location.deleteButton;
             delete location.addLocation;
             delete location[""];
+            delete location.officeHoursList;
+
+            location.officeHours.forEach(function(oh){delete oh.deleteButton});
 
             parseLoc.set(location);
 
             doc.add("locations", parseLoc);
         });
 
-        event.target.specialties.value && event.target.specialties.value.split(',').forEach(function(id){
+        var docProps = formUtils.toNameValCollection(event.target);
+
+        doc.unset("specialties");
+
+        docProps.specialties && docProps.specialties.split(',').forEach(function(id){
             doc.add("specialties", specs.get(id));
         });
 
-        event.target.salesPeople.value && event.target.salesPeople.value.split(',').forEach(function(id){
+        delete docProps.specialties;
+
+        doc.unset("salesPeople");
+        docProps.salesPeople && docProps.salesPeople.split(',').forEach(function(id){
             doc.add("salesPeople", sales.get(id));
         });
+
+        delete docProps.salesPeople;
+
+        doc.set(docProps);
 
         doc.save().then(
             this.props.onRequestHide,
@@ -175,9 +264,34 @@ var DoctorModal = React.createClass({
     },
 
     render: function() {
-        var title =
-            (this.props.doctor.isNew() ? "New" : "Edit") + " " +
-            (this.props.doctor.isSpecialist) ? "Specialist" : "Referring Doctor";
+        //TODO: Doesn't work
+        var doc = this.props.doctor;
+
+
+        var title =[
+            (doc.isNew() ? "New" : "Edit"),
+            (doc.isSpecialist) ? "Specialist" : "Referring Doctor"
+        ].join(" ");
+
+
+        var specialtiesSelect = doc.isSpecialist && (
+            <Col sm={6}>
+                <label for="specialties">Specialties</label>
+                <Select
+                    id='specialties'
+                    name='specialties'
+                    options={formUtils.toLabelValArrayByName(this.state.specialties)}
+                    value={formUtils.toIdArray(this.props.doctor.get("specialties"))}
+                    multi={true}/>
+            </Col>);
+
+
+        var OfficeHoursControl = doc.isSpecialist && (
+            <OfficeHours
+                defaultWeekDay={this.state.officeHoursWeekDay}
+                addOfficeHours={this.addOfficeHours}
+                officeHours={this.state.officeHours}/>
+        );
 
         return (
             <Modal {...this.props} title={title} bsSize="large">
@@ -187,37 +301,36 @@ var DoctorModal = React.createClass({
                             <form id="doctorForm" onSubmit={this.save}>
                                 <Grid>
                                     <Row>
-                                        <legend>Name/Company</legend>
-                                        <Col sm={4}>
+                                        <Col sm={3}>
                                             <Input
                                                 form="doctorForm"
                                                 type="text"
                                                 name="firstName"
-                                                defaultValue={this.props.doctor.get("firstName")}
+                                                defaultValue={doc.get("firstName")}
                                                 label='Name'
-                                                placeholder="First Last" />
+                                                placeholder="First Name" />
                                         </Col>
-                                        <Col sm={4}>
+                                        <Col sm={3}>
                                             <Input
                                                 form="doctorForm"
                                                 type="text"
                                                 name="lastName"
-                                                value="Becker"
-                                                defaultValue={this.props.doctor.get("lastName")}
+                                                defaultValue={doc.get("lastName")}
+                                                label='Last Name'
+                                                placeholder="Last Name" />
+                                        </Col>
+                                        <Col sm={3}>
+                                            <Input
+                                                form="doctorForm"
+                                                type="text"
+                                                name="company"
+                                                defaultValue={doc.get("company")}
                                                 label='Company'
                                                 placeholder="Company" />
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col sm={6}>
-                                            <label for="specialties">Specialties</label>
-                                            <Select
-                                                id='specialties'
-                                                name='specialties'
-                                                options={toLabelValArray(this.state.insCarriers)}
-                                                defaultValue={toDelimitedIdString(props.doctor.get("specialties"))}
-                                                multi='true'/>
-                                        </Col>
+                                        {specialtiesSelect}
                                     </Row>
                                     <Row>
                                         <Col sm={6}>
@@ -225,9 +338,9 @@ var DoctorModal = React.createClass({
                                             <Select
                                                 id='salesPeople'
                                                 name='salesPeople'
-                                                defaultValue={toDelimitedIdString(props.doctor.get("salesPeople"))}
-                                                options={toLabelValArray(this.state.insCarriers)}
-                                                multi='true'/>
+                                                options={formUtils.toLabelValArrayByName(this.state.salesPeople)}
+                                                defaultValue={formUtils.toIdArray(doc.get("salesPeople"))}
+                                                multi={true}/>
                                         </Col>
                                     </Row>
                                     <Row>
@@ -235,10 +348,10 @@ var DoctorModal = React.createClass({
                                             <Input
                                                 type="textarea"
                                                 form="doctorForm"
-                                                name="Notes"
+                                                name="notes"
                                                 label='Notes'
                                                 placeholder="Notes"
-                                                defaultValue={this.props.doctor.get("notes")}
+                                                defaultValue={doc.get("notes")}
                                             /></Col>
                                     </Row>
                                 </Grid>
@@ -248,15 +361,14 @@ var DoctorModal = React.createClass({
                             <form id="locationForm" onSubmit={this.addLocation}>
                                 <Grid>
                                     <Row>
-                                        <legend>Locations</legend>
-                                        <Col sm={3}><Input type="text" name="address" value="1 1st St" label='Address' placeholder="Address" required=""/></Col>
-                                        <Col sm={3}><Input type="text" name="city" value="New York" label='City' placeholder="City" /></Col>
-                                        <Col sm={1}><Input type="text" name="state" value="NY" label='State' placeholder="State" /></Col>
-                                        <Col sm={1}><Input type="text" name="zip" value="11345" label='Zip' placeholder="Zip" /></Col>
+                                        <Col sm={3}><Input type="text" name="address" label='Address' placeholder="Address" required=""/></Col>
+                                        <Col sm={3}><Input type="text" name="city" label='City' placeholder="City" /></Col>
+                                        <Col sm={1}><Input type="text" name="state" label='State' placeholder="State" /></Col>
+                                        <Col sm={1}><Input type="text" name="zip" label='Zip' placeholder="Zip" /></Col>
                                     </Row>
                                     <Row>
-                                        <Col sm={3}><Input type="text" name="phone" value="555-555-5555"label='Phone' placeholder="Phone" /></Col>
-                                        <Col sm={3}><Input type="text" name="email" value="a@a.com" label='Email' placeholder="Email" /></Col>
+                                        <Col sm={3}><Input type="text" name="phone" label='Phone' placeholder="Phone" /></Col>
+                                        <Col sm={3}><Input type="text" name="email" label='Email' placeholder="Email" /></Col>
                                     </Row>
                                     <Row>
                                         <Col sm={6}>
@@ -264,28 +376,33 @@ var DoctorModal = React.createClass({
                                             <Select
                                                 id='insCarriers'
                                                 name='insCarriers'
-                                                options={toLabelValArray(this.state.insCarriers)}
-                                                multi='true'/>
+                                                options={formUtils.toLabelValArrayByName(this.state.insCarriers)}
+                                                multi={true}/>
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col sm={1}><Input bsStyle="primary" type="submit" name="addLocation" value="Add Location"/></Col>
+                                    &nbsp;
                                     </Row>
-                                    <Row>
 
-                                        <Table className="table table-striped table-condensed" columns={[
-                                            { key: "deleteButton", label: ""},
-                                            { key: "address", label: "Address"},
-                                            { key: "city", label: "City"},
-                                            { key: "state", label: "State"},
-                                            { key: "zip", label: "Zip"},
-                                            { key: "phone", label: "Phone"}
-                                        ]}
-                                            data={this.state.locations}>
-                                        </Table>
-                                    </Row>
                                 </Grid>
                             </form>
+                            {OfficeHoursControl}
+
+
+
+                            <Button bsStyle="primary" form="locationForm" type="submit" name="addLocation" value="Add Location">Add Location</Button>
+
+                            <Table className="table table-striped table-condensed" columns={[
+                                { key: "deleteButton", label: ""},
+                                { key: "address", label: "Address"},
+                                { key: "city", label: "City"},
+                                { key: "state", label: "State"},
+                                { key: "zip", label: "Zip"},
+                                { key: "phone", label: "Phone"},
+                                { key: "officeHoursList", label: "Office Hours"}
+                            ]}
+                                data={this.state.locations}>
+                            </Table>
 
 
                         </TabPane>
@@ -294,8 +411,8 @@ var DoctorModal = React.createClass({
                 </div>
                 <div className="modal-footer">
                     <ButtonToolbar>
-                        <Input type="submit" form="doctorForm" name="Save" value="Save"/>
-                        <Button onClick={this.props.onRequestHide}>Close</Button>
+                        <Button bsStyle="primary" type="submit" form="doctorForm" name="saveButton" value="Save">Save</Button>
+                        <Button bsStyle="danger" onClick={this.props.onRequestHide} name="Cancel">Cancel</Button>
                     </ButtonToolbar>
                 </div>
             </Modal>);

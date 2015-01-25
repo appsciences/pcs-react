@@ -16,63 +16,30 @@ var Table = require('reactable').Table
     , Tr = require('reactable').Tr
     , Td = require('reactable').Td;
 
-var Patient = require("./patient");
+var InsCarrier = require("./ins-carrier");
 
-var Patients = require("./patients");
+var InsCarriers = require("./ins-carriers");
 
-var PatientModal = require("./patient-edit.js");
+var InsCarrierModal = require("./ins-carrier-edit.js");
 
 var Spinner = require("react-spinner");
 
 
-var PatientList = React.createClass({
+var InsCarrierList = React.createClass({
     getInitialState: function () {
         return {
-            patients: new Patients(),
+            insCarriers: new InsCarriers(),
             showModal: false,
-            patient: new Patient()
+            insCarrier: new InsCarrier()
         };
     },
 
-    showNewModal: function () {
-        this.setState({showModal: true, patient: new Patient()})
-    },
-
-
-    getPatientData: function (patientData) {
-
-        return patientData.map(function (pat) {
-
-            return {
-                name: pat.getFullName(' '),
-                address: pat.getFullAddress(),
-                editButton: (
-                    <Button bsStyle="warning" value={pat.id} onClick={this.editPatient}>
-                        <Glyphicon glyph="edit" />
-                    </Button>
-                )
-            };
-        }.bind(this));
-    },
-
-    editPatient: function (event){
-        this.setState({
-            showModal: true,
-            patient: this.state.patients.get(event.target.value || event.target.parentElement.value)
-        });
-    },
-
-    hideModal: function(){
-        this.getData();
-        this.setState({showModal: false})
-    },
-
-    getData: function(){
-        this.state.patients.fetch().then(function(patients){
+    getData: function() {
+        this.state.insCarriers.fetch().then(function(carriers){
 
             if (this.isMounted()) {
                 this.setState({
-                    patients: patients
+                    insCarriers: carriers
                 });
             }
         }.bind(this), function(err) {
@@ -85,36 +52,66 @@ var PatientList = React.createClass({
         this.getData();
     },
 
+    showNewModal: function () {
+        this.setState({showModal: true, insCarrier: new InsCarrier()})
+    },
+
+
+    getInsCarrierData: function (insCarrierData) {
+
+        return insCarrierData.map(function (ins) {
+
+            return {
+                name: ins.get('name'),
+                editButton: (
+                    <Button bsStyle="warning" value={ins.id} onClick={this.editInsCarrier}>
+                        <Glyphicon glyph="edit" />
+                    </Button>
+                )
+            };
+        }.bind(this));
+    },
+
+    editInsCarrier: function (event){
+        this.setState({
+            showModal: true,
+            insCarrier: this.state.insCarriers.get(event.target.value || event.target.parentElement.value)
+        });
+    },
+
+    hideModal: function(){
+        this.getData();
+        this.setState({showModal: false});
+    },
+
     render: function () {
 
         var modal = this.state.showModal &&
-            (<PatientModal
+            (<InsCarrierModal
                 onRequestHide={this.hideModal}
-                patient={this.state.patient}
+                insCarrier={this.state.insCarrier}
             />);
 
         return (
             <Well>
                 <Panel>
                     <ButtonToolbar>
-                        Patients
-                        <Button bsStyle="primary" onClick={this.showNewModal}>Add Patient</Button>
+                        Insurance
+                        <Button bsStyle="primary" onClick={this.showNewModal}>Add Insurance</Button>
                     </ButtonToolbar>
                 </Panel>
                 <Table className="table table-striped table-condensed"
                     columns={[
                         { key: "editButton", label: ""},
                         { key: "name", label: "Name"},
-                        { key: "address", label: "Address"}
                     ]}
-                    sortable={true}
-                    itemsPerPage={20}
-                    data={this.getPatientData(this.state.patients)}/>
+                    data={this.getInsCarrierData(this.state.insCarriers)}
+                sortable={true}
+                itemsPerPage={20}/>
                 {modal}
             </Well>
         );
     }
 });
 
-module.exports = PatientList;
-
+module.exports = InsCarrierList;

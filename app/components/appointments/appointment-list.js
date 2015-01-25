@@ -16,38 +16,45 @@ var Table = require('reactable').Table
     , Tr = require('reactable').Tr
     , Td = require('reactable').Td;
 
-var Patient = require("./patient");
+var Appointment = require("./appointment");
 
-var Patients = require("./patients");
+var Appointments = require("./appointments");
 
-var PatientModal = require("./patient-edit.js");
+var AppointmentModal = require("./appointment-edit.js");
 
 var Spinner = require("react-spinner");
 
 
-var PatientList = React.createClass({
+var AppointmentList = React.createClass({
     getInitialState: function () {
         return {
-            patients: new Patients(),
+            appointments: [],
             showModal: false,
-            patient: new Patient()
+            appointment: new Appointment()
         };
     },
 
     showNewModal: function () {
-        this.setState({showModal: true, patient: new Patient()})
+        this.setState({showModal: true, appointment: new Appointment()})
     },
 
 
-    getPatientData: function (patientData) {
+    getAppointmentData: function (appointmentData) {
 
-        return patientData.map(function (pat) {
+        return appointmentData.map(function (appt) {
 
             return {
-                name: pat.getFullName(' '),
-                address: pat.getFullAddress(),
+                date: appt.get(date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour:'numeric',
+                    minute:'numeric'}),
+                patientName: appt.patient.getFullName(' '),
+                patientPhone: appt.patient.get('phone'),
+                doctorName: appt.doctor.getFullName(' '),
+                doctorAddress: appt.location.getFullAddress(),
                 editButton: (
-                    <Button bsStyle="warning" value={pat.id} onClick={this.editPatient}>
+                    <Button bsStyle="warning" value={appt.id} onClick={this.editAppointment}>
                         <Glyphicon glyph="edit" />
                     </Button>
                 )
@@ -55,24 +62,24 @@ var PatientList = React.createClass({
         }.bind(this));
     },
 
-    editPatient: function (event){
+    editAppointment: function (event){
         this.setState({
             showModal: true,
-            patient: this.state.patients.get(event.target.value || event.target.parentElement.value)
+            appointment: this.state.appointments.get(event.target.value || event.target.parentElement.value)
         });
     },
 
     hideModal: function(){
-        this.getData();
         this.setState({showModal: false})
     },
 
-    getData: function(){
-        this.state.patients.fetch().then(function(patients){
+    componentDidMount: function() {
+        var appointments = new Appointments();
+        appointments.fetch().then(function(appointments){
 
             if (this.isMounted()) {
                 this.setState({
-                    patients: patients
+                    appointments: appointments
                 });
             }
         }.bind(this), function(err) {
@@ -81,40 +88,39 @@ var PatientList = React.createClass({
         });
     },
 
-    componentDidMount: function() {
-        this.getData();
-    },
-
     render: function () {
 
         var modal = this.state.showModal &&
-            (<PatientModal
+            (<AppointmentModal
                 onRequestHide={this.hideModal}
-                patient={this.state.patient}
+                appointment={this.state.appointment}
             />);
 
         return (
             <Well>
                 <Panel>
                     <ButtonToolbar>
-                        Patients
-                        <Button bsStyle="primary" onClick={this.showNewModal}>Add Patient</Button>
+                        Appointments
+                        <Button bsStyle="primary" onClick={this.showNewModal}>Add Appointment</Button>
                     </ButtonToolbar>
                 </Panel>
                 <Table className="table table-striped table-condensed"
                     columns={[
                         { key: "editButton", label: ""},
-                        { key: "name", label: "Name"},
-                        { key: "address", label: "Address"}
+                        { key: "date", label: "Date"},
+                        { key: "patientName", label: "Name"},
+                        { key: "patientPhone", label: "Phone"},
+                        { key: "doctorName", label: "Name"},
+                        { key: "doctorAddress", label: "Address"}
                     ]}
                     sortable={true}
                     itemsPerPage={20}
-                    data={this.getPatientData(this.state.patients)}/>
+                    data={this.getAppointmentData(this.state.appointments)}/>
                 {modal}
             </Well>
         );
     }
 });
 
-module.exports = PatientList;
+module.exports = AppointmentList;
 

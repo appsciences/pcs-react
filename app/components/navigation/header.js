@@ -13,7 +13,7 @@ var Header =  React.createClass({
             <Navbar>
                 <Nav>
                     <NavItem
-                        className="navbar-header navbar-brand"
+                        className="navbar-header"
                         href="#">
                         <Glyphicon glyph="tree-deciduous"/>&nbsp;Patient Concierge Services
                     </NavItem>
@@ -28,9 +28,6 @@ var Header =  React.createClass({
                     <NavItem
                         href="#">
                         Sales
-                    </NavItem>
-                    <NavItem className="navbar-right">
-                        Hello Leo
                     </NavItem>
                 </Nav>
             </Navbar>

@@ -7,6 +7,8 @@ var ReactBootstrap = require('react-bootstrap')
     , ButtonToolbar = ReactBootstrap.ButtonToolbar
     , Button = ReactBootstrap.Button
     , Panel = ReactBootstrap.Panel
+    , TabbedArea = ReactBootstrap.TabbedArea
+    , TabPane = ReactBootstrap.TabPane
     , Glyphicon = ReactBootstrap.Glyphicon
     , ModalTrigger = ReactBootstrap.ModalTrigger;
 
@@ -26,7 +28,7 @@ var Spinner = require("react-spinner");
 var DoctorList = React.createClass({
     getInitialState: function () {
         return {
-            doctors: [],
+            doctors: new Doctors(),
             showModal: false,
             doctor: new Doctor()
         };
@@ -39,29 +41,39 @@ var DoctorList = React.createClass({
     },
 
 
-    getDoctorData: function (doctorData) {
+    getDoctorData: function (doctorData, isReferring) {
 
-        return doctorData.map(function (doc) {
-            var locationlist = doc.getLocationsList().map(function (loc) {
-                return (<li>{loc}</li>);
+        return doctorData.filter(function(doc){
+
+            return doc.isReferring == isReferring;
+
+        }).map(function (doc) {
+
+            var locationList = doc.getLocationsList().map(function (loc) {
+                return (<tr><td>{loc}</td></tr>);
+            });
+
+            var specialtiesList = doc.get("specialties") && doc.get("specialties").map(function (spec) {
+                return (<tr><td>{spec.get('name')}</td></tr>);
             });
 
             return {
                 name: doc.getFullName(' '),
-                locations: (<ul>{locationlist}</ul>),
+                locations: (<table>{locationList}</table>),
+                specialties: (<table>{specialtiesList}</table>),
                 editButton: (
                     <Button bsStyle="warning" value={doc.id} onClick={this.editDoctor}>
                         <Glyphicon glyph="edit" />
                     </Button>
                 )
             };
-        });
+        }.bind(this));
     },
 
     editDoctor: function (event){
         this.setState({
             showModal: true,
-            doctor: this.state.doctors.get(event.target.value)
+            doctor: this.state.doctors.get(event.target.value || event.target.parentElement.value)
         });
     },
 
@@ -72,12 +84,12 @@ var DoctorList = React.createClass({
     },
 
     hideModal: function(){
+        this.getData();
         this.setState({showModal: false})
     },
 
-    componentDidMount: function() {
-        var doctors = new Doctors();
-        doctors.fetch().then(function(doctors){
+    getData: function () {
+        this.state.doctors.fetch().then(function(doctors){
 
             if (this.isMounted()) {
                 this.setState({
@@ -88,6 +100,10 @@ var DoctorList = React.createClass({
             //TODO: Error Handling}
             err;
         });
+    },
+
+    componentDidMount: function() {
+        this.getData();
     },
 
     render: function () {
@@ -104,17 +120,36 @@ var DoctorList = React.createClass({
                     <ButtonToolbar>
                         Doctors
                         <Button bsStyle="primary" onClick={this.showReferringModal}>Add Referring</Button>
-                        <Button bsStyle="primary" onClick={this.showSpecialistModal}>Add Specialist</Button>
+                        <Button bsStyle="primary" onClick={this.showSpecialistModal}>Add Specialists</Button>
                     </ButtonToolbar>
                 </Panel>
-                <Table className="table table-striped table-condensed" columns={[
-                    { key: "editButton", label: ""},
-                    { key: "name", label: "Name"},
-                    { key: "locations", label: "Locations"}
-                ]}
-
-                    data={this.getDoctorData(this.state.doctors)}>
-                </Table>
+                <TabbedArea defaultActiveKey={1}>
+                    <TabPane eventKey={1} tab="Referring">
+                        <Table className="table table-striped table-condensed"
+                            columns={[
+                                { key: "editButton", label: ""},
+                                { key: "name", label: "Name"},
+                                { key: "locations", label: "Locations"}
+                            ]}
+                            data={this.getDoctorData(this.state.doctors, true)}
+                            sortable={true}
+                            itemsPerPage={20}>
+                        </Table>
+                    </TabPane>
+                    <TabPane eventKey={2} tab="Specialists">
+                        <Table className="table table-striped table-condensed"
+                            columns={[
+                                { key: "editButton", label: ""},
+                                { key: "name", label: "Name"},
+                                { key: "locations", label: "Locations"},
+                                { key: "specialties", label: "Specialties"}
+                            ]}
+                            sortable={true}
+                            itemsPerPage={20}
+                            data={this.getDoctorData(this.state.doctors, false)}>
+                        </Table>
+                    </TabPane>
+                 </TabbedArea>
                 {modal}
             </Well>
         );

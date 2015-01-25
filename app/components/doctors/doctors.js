@@ -7,6 +7,7 @@ var query = new Parse.Query(Doctor);
 query.include('locations');
 query.include('specialties');
 query.include('salesPeople');
+query.addAscending('lastName');
 
 var Doctors = Parse.Collection.extend({
     model: Doctor,
