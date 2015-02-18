@@ -1,0 +1,90 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   'reac-tools',
+1 verbose cli   '--save-dev' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.36
+4 warn package.json qdrive_form@1.0.0 No description
+5 warn package.json qdrive_form@1.0.0 No README data
+6 verbose readDependencies using package.json deps
+7 verbose cache add [ 'reac-tools', null ]
+8 verbose cache add name=undefined spec="reac-tools" args=["reac-tools",null]
+9 verbose parsed url { protocol: null,
+9 verbose parsed url   slashes: null,
+9 verbose parsed url   auth: null,
+9 verbose parsed url   host: null,
+9 verbose parsed url   port: null,
+9 verbose parsed url   hostname: null,
+9 verbose parsed url   hash: null,
+9 verbose parsed url   search: null,
+9 verbose parsed url   query: null,
+9 verbose parsed url   pathname: 'reac-tools',
+9 verbose parsed url   path: 'reac-tools',
+9 verbose parsed url   href: 'reac-tools' }
+10 silly lockFile 259154bc-reac-tools reac-tools
+11 verbose lock reac-tools /Users/levushka/.npm/259154bc-reac-tools.lock
+12 silly lockFile 259154bc-reac-tools reac-tools
+13 silly lockFile 259154bc-reac-tools reac-tools
+14 verbose addNamed [ 'reac-tools', '' ]
+15 verbose addNamed [ null, '*' ]
+16 silly lockFile 1c4ee1b1-reac-tools reac-tools@
+17 verbose lock reac-tools@ /Users/levushka/.npm/1c4ee1b1-reac-tools.lock
+18 silly addNameRange { name: 'reac-tools', range: '*', hasData: false }
+19 verbose request where is /reac-tools
+20 verbose request registry https://registry.npmjs.org/
+21 verbose request id e20e3ea1e780dc10
+22 verbose url raw /reac-tools
+23 verbose url resolving [ 'https://registry.npmjs.org/', './reac-tools' ]
+24 verbose url resolved https://registry.npmjs.org/reac-tools
+25 verbose request where is https://registry.npmjs.org/reac-tools
+26 info trying registry request attempt 1 at 19:51:42
+27 http GET https://registry.npmjs.org/reac-tools
+28 http 404 https://registry.npmjs.org/reac-tools
+29 verbose headers { date: 'Sun, 08 Feb 2015 00:51:42 GMT',
+29 verbose headers   server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+29 verbose headers   'content-type': 'application/json',
+29 verbose headers   'cache-control': 'max-age=0',
+29 verbose headers   'content-length': '52',
+29 verbose headers   'accept-ranges': 'bytes',
+29 verbose headers   via: '1.1 varnish',
+29 verbose headers   age: '0',
+29 verbose headers   'x-served-by': 'cache-iad2133-IAD',
+29 verbose headers   'x-cache': 'MISS',
+29 verbose headers   'x-cache-hits': '0',
+29 verbose headers   'x-timer': 'S1423356702.797431,VS0,VE53',
+29 verbose headers   'keep-alive': 'timeout=10, max=50',
+29 verbose headers   connection: 'Keep-Alive' }
+30 silly registry.get cb [ 404,
+30 silly registry.get   { date: 'Sun, 08 Feb 2015 00:51:42 GMT',
+30 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+30 silly registry.get     'content-type': 'application/json',
+30 silly registry.get     'cache-control': 'max-age=0',
+30 silly registry.get     'content-length': '52',
+30 silly registry.get     'accept-ranges': 'bytes',
+30 silly registry.get     via: '1.1 varnish',
+30 silly registry.get     age: '0',
+30 silly registry.get     'x-served-by': 'cache-iad2133-IAD',
+30 silly registry.get     'x-cache': 'MISS',
+30 silly registry.get     'x-cache-hits': '0',
+30 silly registry.get     'x-timer': 'S1423356702.797431,VS0,VE53',
+30 silly registry.get     'keep-alive': 'timeout=10, max=50',
+30 silly registry.get     connection: 'Keep-Alive' } ]
+31 silly lockFile 1c4ee1b1-reac-tools reac-tools@
+32 silly lockFile 1c4ee1b1-reac-tools reac-tools@
+33 error 404 404 Not Found: reac-tools
+33 error 404
+33 error 404 'reac-tools' is not in the npm registry.
+33 error 404 You should bug the author to publish it
+33 error 404 It was specified as a dependency of 'qdrive_form'
+33 error 404
+33 error 404 Note that you can also install from a
+33 error 404 tarball, folder, or http url, or git url.
+34 error System Darwin 14.1.0
+35 error command "node" "/usr/local/bin/npm" "install" "reac-tools" "--save-dev"
+36 error cwd /Users/levushka/proj/pcs-react
+37 error node -v v0.10.36
+38 error npm -v 1.4.28
+39 error code E404
+40 verbose exit [ 1, true ]

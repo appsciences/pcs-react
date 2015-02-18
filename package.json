@@ -1,0 +1,42 @@
+{
+  "name": "qdrive_form",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app/index.html",
+  "scripts": {
+    "build": "browserify -t reactify ./index.js | uglifyjs -cm > bundle.js ",
+    "develop": "watchify -d -t reactify app/index.js -o app/bundle.js ",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/appsciences/qdrive_form.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/appsciences/qdrive_form/issues"
+  },
+  "homepage": "https://github.com/appsciences/qdrive_form",
+  "dependencies": {
+    "bootstrap": "^3.3.2",
+    "lodash": "^3.1.0",
+    "react": "^0.12.2",
+    "react-tools": "*",
+    "react-bootstrap": "^0.13.3",
+    "react-router": "^0.11.6",
+    "react-router-bootstrap": "^0.8.3",
+    "react-select": "^0.3.2",
+    "reactable": "^0.9.8",
+    "reactify": "^1.0.0"
+  },
+  "jest": {
+    "scriptPreprocessor": "preprocessor.js",
+    "unmockedModulePathPatterns": [
+      "node_modules/react"
+    ]
+  },
+  "devDependencies": {
+    "react-tools": "^0.12.2"
+  }
+}

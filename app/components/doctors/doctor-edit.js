@@ -4,8 +4,7 @@ var React = require('react/addons')
     , Location = require('./location')
     , InsCarriers = require('../insCarriers/ins-carriers')
     , Specialties = require('../specialties/specialties')
-    , SalesPeople = require('../sales-person/sales-people')
-    , OfficeHours = require('./office-hours');
+    , SalesPeople = require('../sales-person/sales-people');
 
 var ReactBootstrap = require('react-bootstrap')
     , Input = ReactBootstrap.Input
@@ -24,8 +23,6 @@ var ReactBootstrap = require('react-bootstrap')
 //var Parse = require('parse').Parse;
 
 var Select = require('react-select');
-
-var Griddle = require('griddle-react');
 
 var Table = require('reactable').Table
     , Tr = require('reactable').Tr
@@ -79,14 +76,15 @@ var DoctorModal = React.createClass({
                 obj.deleteButton = (
                     <Button bsStyle="danger" value={index} onClick={this.removeLocation}>
                         <Glyphicon glyph="remove" />
-                    </Button>);
+                    </Button>
+                );
 
                 return obj;
             }.bind(this));
     },
 
 //Modal scrolling fix
-    componentWillUnmount() {
+    componentWillUnmount: function () {
         if (document && document.body) {
             document.body.className = document.body.className.replace(/ ?modal-open/, '');
         }
@@ -160,6 +158,8 @@ var DoctorModal = React.createClass({
             });
 
             row.officeHoursList  = <ul>{officeHoursList}</ul>;
+        }else{
+            row.officeHours = [];
         }
 
         this.setState(
@@ -307,7 +307,7 @@ var DoctorModal = React.createClass({
                                                 type="text"
                                                 name="firstName"
                                                 defaultValue={doc.get("firstName")}
-                                                label='Name'
+                                                label='First Name'
                                                 placeholder="First Name" />
                                         </Col>
                                         <Col sm={3}>
@@ -388,23 +388,22 @@ var DoctorModal = React.createClass({
                             </form>
                             {OfficeHoursControl}
 
-
-
                             <Button bsStyle="primary" form="locationForm" type="submit" name="addLocation" value="Add Location">Add Location</Button>
 
-                            <Table className="table table-striped table-condensed" columns={[
-                                { key: "deleteButton", label: ""},
-                                { key: "address", label: "Address"},
-                                { key: "city", label: "City"},
-                                { key: "state", label: "State"},
-                                { key: "zip", label: "Zip"},
-                                { key: "phone", label: "Phone"},
-                                { key: "officeHoursList", label: "Office Hours"}
-                            ]}
+                            <Table
+                                style={this.state.locations.length ? {} : {display: 'none'}}
+                                className="table table-striped table-condensed"
+                                columns={[
+                                    { key: "deleteButton", label: ""},
+                                    { key: "address", label: "Address"},
+                                    { key: "city", label: "City"},
+                                    { key: "state", label: "State"},
+                                    { key: "zip", label: "Zip"},
+                                    { key: "phone", label: "Phone"},
+                                    { key: "officeHoursList", label: "Office Hours"}
+                                ]}
                                 data={this.state.locations}>
                             </Table>
-
-
                         </TabPane>
                     </TabbedArea>
 

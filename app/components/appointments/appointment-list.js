@@ -22,9 +22,6 @@ var Appointments = require("./appointments");
 
 var AppointmentModal = require("./appointment-edit.js");
 
-var Spinner = require("react-spinner");
-
-
 var AppointmentList = React.createClass({
     getInitialState: function () {
         return {
@@ -44,15 +41,14 @@ var AppointmentList = React.createClass({
         return appointmentData.map(function (appt) {
 
             return {
-                date: appt.get(date).toLocaleDateString('en-US', {
+                date: appt.get('date') && appt.get('date').toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
                     hour:'numeric',
                     minute:'numeric'}),
-                patientName: appt.patient.getFullName(' '),
-                patientPhone: appt.patient.get('phone'),
-                doctorName: appt.doctor.getFullName(' '),
-                doctorAddress: appt.location.getFullAddress(),
+                patientName: appt.get('patient') && appt.get('patient').getFullName(' '),
+                patientPhone: appt.get('patient') && appt.get('patient').get('phone'),
+                doctorAddress: appt.get('location') && appt.get('location').getFullAddress(),
                 editButton: (
                     <Button bsStyle="warning" value={appt.id} onClick={this.editAppointment}>
                         <Glyphicon glyph="edit" />
@@ -110,7 +106,6 @@ var AppointmentList = React.createClass({
                         { key: "date", label: "Date"},
                         { key: "patientName", label: "Name"},
                         { key: "patientPhone", label: "Phone"},
-                        { key: "doctorName", label: "Name"},
                         { key: "doctorAddress", label: "Address"}
                     ]}
                     sortable={true}

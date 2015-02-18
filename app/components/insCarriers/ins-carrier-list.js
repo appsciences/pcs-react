@@ -22,9 +22,6 @@ var InsCarriers = require("./ins-carriers");
 
 var InsCarrierModal = require("./ins-carrier-edit.js");
 
-var Spinner = require("react-spinner");
-
-
 var InsCarrierList = React.createClass({
     getInitialState: function () {
         return {

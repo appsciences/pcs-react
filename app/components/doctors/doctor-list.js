@@ -22,9 +22,6 @@ var Doctors = require("./doctors");
 
 var DoctorModal = require("./doctor-edit.js");
 
-var Spinner = require("react-spinner");
-
-
 var DoctorList = React.createClass({
     getInitialState: function () {
         return {

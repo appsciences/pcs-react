@@ -1,4 +1,3 @@
-
 var _ = require('lodash')._
 , React = require('react/addons');
 
@@ -24,8 +23,10 @@ formUtils.toLabelValArrayByFirstLastName = function (parseObjCol) {
         });
 };
 
+
 formUtils.toNameValCollection = function(form){
     var o = {};
+    console.log('yo pops ' + _);
     _.forEach(form, function(input){
             if(input.name && input.name.indexOf("Button") == -1) {
                 o[input.name] = input.value;

@@ -22,9 +22,6 @@ var Specialties = require("./specialties");
 
 var SpecialtyModal = require("./specialty-edit.js");
 
-var Spinner = require("react-spinner");
-
-
 var SpecialtyList = React.createClass({
     getInitialState: function () {
         return {
@@ -34,7 +31,7 @@ var SpecialtyList = React.createClass({
         };
     },
 
-    loadData(){
+    loadData: function(){
         this.state.specialties.fetch().then(function(carriers){
 
             if (this.isMounted()) {

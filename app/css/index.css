@@ -1,0 +1,8 @@
+/* could not inline bootstrap, just doesn't work */
+/*@import "../../node_modules/bootstrap/dist/css/bootstrap.css";*/
+@import "../../node_modules/react-select/dist/default.css";
+@import "./table.css";
+
+body {
+    padding: 50px;
+}

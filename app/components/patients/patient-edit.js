@@ -19,8 +19,6 @@ var ReactBootstrap = require('react-bootstrap')
 
 var Select = require('react-select');
 
-var Griddle = require('griddle-react');
-
 var Table = require('reactable').Table
     , Tr = require('reactable').Tr
     , Td = require('reactable').Td;
@@ -106,14 +104,16 @@ var PatientModal = React.createClass({
                                 </Col>
                             </Row>
                             <Row>
-                                <Col sm={3}><Input type="text" name="address" value="1 1st St" label='Address' placeholder="Address" required=""/></Col>
-                                <Col sm={3}><Input type="text" name="city" value="New York" label='City' placeholder="City" /></Col>
-                                <Col sm={1}><Input type="text" name="state" value="NY" label='State' placeholder="State" /></Col>
-                                <Col sm={1}><Input type="text" name="zip" value="11345" label='Zip' placeholder="Zip" /></Col>
+                                <Col sm={3}><Input type="text" name="address" defaultValue={pat.get("address")} label='Address' placeholder="Address" required=""/></Col>
+                                <Col sm={3}><Input type="text" name="city" defaultValue={pat.get("city")} label='City' placeholder="City" /></Col>
                             </Row>
                             <Row>
-                                <Col sm={3}><Input type="text" name="phone" value="555-555-5555"label='Phone' placeholder="Phone" /></Col>
-                                <Col sm={3}><Input type="text" name="email" value="a@a.com" label='Email' placeholder="Email" /></Col>
+                                <Col sm={3}><Input type="text" name="state" defaultValue={pat.get("state")} label='State' placeholder="State" /></Col>
+                                <Col sm={3}><Input type="text" name="zip" defaultValue={pat.get("zip")} label='Zip' placeholder="Zip" /></Col>
+                            </Row>
+                            <Row>
+                                <Col sm={3}><Input type="text" name="phone" defaultValue={pat.get("phone")} label='Phone' placeholder="Phone" /></Col>
+                                <Col sm={3}><Input type="text" name="email" defaultValue={pat.get("email")} label='Email' placeholder="Email" /></Col>
                             </Row>
                             <Row>
                                 <Col sm={6}>

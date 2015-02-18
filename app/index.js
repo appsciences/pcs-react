@@ -37,8 +37,6 @@ var InsCarrierList = require("./components/insCarriers/ins-carrier-list");
 
 var SpecialtyList = require("./components/specialties/specialty-list");
 
-var OfficeHours = require("./components/doctors/office-hours-edit");
-
 var App = React.createClass({
 
     render: function() {
@@ -169,7 +167,6 @@ var routes = (
             <Route name="appointments" path="appointments" handler={ApptList} />
             <Route name="patients" path="patients" handler={PatientList} />
             <Route name="doctors" path="doctors" handler={DoctorList} />
-            <Route name="test" path="test" handler={OfficeHours} />
         </Route>
         <Route path="admin" name="admin" handler={AdminArea} >
             <DefaultRoute handler={AdminDashboard} />
